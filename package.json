@@ -1,27 +1,43 @@
 {
-  "name": "web-vol-viewer",
-  "version": "0.1.0",
+  "name": "@janelia/web-vol-viewer",
+  "version": "0.0.1",
+  "description": "Direct volume rendering with WebGL 2.",
+  "main": "dist/module.js",
+  "module": "dist/module.js",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.15.0",
-    "@testing-library/react": "^11.2.7",
-    "@testing-library/user-event": "^12.8.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
-    "web-vitals": "^1.1.2"
+    "@craco/craco": "^6.4.0",
+    "@janelia/three-orbit-unlimited-controls": "^1.0.3",
+    "@janelia/web-h5j-loader": "^1.0.0"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.8.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.12.0",
+    "react-modal": "^3.14.4",
+    "three": "^0.125.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "test": "craco test",
+    "dist": "babel src --out-dir dist --ignore src/App.jsx,src/index.jsx && cp src/H5j3dViewerWithBasicUI.css src/Vol3dViewer.css dist",
+    "prepublishOnly": "npm run dist"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
-      "react-app/jest"
-    ]
+      "react-app/jest",
+      "airbnb",
+      "plugin:jsx-a11y/recommended",
+      "prettier"
+    ],
+    "plugins": [
+      "jsx-a11y",
+      "prettier"
+    ],
+    "rules": {
+      "no-console": "off"
+    }
   },
   "browserslist": {
     "production": [
@@ -34,5 +50,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.17.6",
+    "@babel/core": "^7.17.9",
+    "@babel/preset-env": "^7.16.11",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.2"
   }
 }

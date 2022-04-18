@@ -1,7 +1,5 @@
-.App {
+.Fallback {
   text-align: center;
-
-  /* Useful properties taken from the create-react-app's .App-header, which we no longer use. */
   background-color: #282c34;
   min-height: 100vh;
   display: flex;

@@ -1,0 +1,110 @@
+/* Prevent wheel events from causing an annoying little bit of scroll. */
+body {
+  overflow: hidden;
+}
+ 
+.BasicUI {
+  text-align: center;
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  font-size: 12px; /* calc(8px + 2vmin); */
+  color: white;
+}
+
+.Controls {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.InputControl {
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+}
+
+.Control {
+  width: 3em;
+  font-size: inherit;
+  color: inherit;
+  background-color: inherit;
+  border: 1px solid #000000;
+}
+
+.ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #282c34ee;
+}
+
+.ModalContent {
+  position: absolute;
+  top: 30%;
+  left: 30%;
+  right: 30%;
+  bottom: 30%;
+  background-color: #32353b;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.FileOrURLInput {
+  width: 84%
+}
+
+.FileOrURLInputButton {
+  overflow: hidden;
+  white-space: nowrap;
+  display: block;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.Channels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input[type="color"] {
+  width: 15px;
+  height: inherit;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* Disable the colored outline around the element with keyboard focus.
+   This outline starts appearing when we add "tabindex={0}" to the div
+   for the rendered output, so it can start receiving keyboard events. */
+*:focus {
+  outline: none;
+}
+
+.Middle {
+  flex-grow: 1;
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.Vol3dViewer {
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}

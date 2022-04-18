@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "web-vol-viewer",
+  "name": "web-vol-viewer",
   "icons": [
     {
       "src": "favicon.ico",
