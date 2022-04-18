@@ -4,7 +4,6 @@
   "description": "Direct volume rendering with WebGL 2.",
   "main": "dist/module.js",
   "module": "dist/module.js",
-  "private": true,
   "dependencies": {
     "@craco/craco": "^6.4.0",
     "@janelia/three-orbit-unlimited-controls": "^1.0.3",
