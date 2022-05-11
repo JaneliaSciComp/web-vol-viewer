@@ -129,6 +129,7 @@ These optional props are:
 * `useSurface ` (default: `false`): controls whether the mesh is visible or not
 * `surfaceColor` (default: `'#00ff00'`): the color of the mesh; note that there is no alpha because the mesh must be fully opaque
 * `onCameraChange` (default: `null`): a function of the form `(event) => {}` called each time the camera changes position.  The `event.target` is the [`OrbitUnlimitedControls`](https://github.com/JaneliaSciComp/three-orbit-unlimited-controls) instance that controls the camera, and `event.target.object` is the Three.js [`PerspectiveCamera`](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera).
+* `onWebGLRender` (default: `null`): a function of the form `() => {}` called each time Three.js renders the 3D scene.  The `H5j3dViewerWithBasicUI` component uses this callback to implement throttling of the spinners on the UI controls.
 
 If opening an H5J file with this component produces an error in the console, "SharedArrayBuffer is not defined", then the application may not have [cross-origin isolation](https://web.dev/cross-origin-isolation-guide) set up properly; see the [section on H5J volume data](#h5j-volume-data).
 
