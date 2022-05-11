@@ -31,6 +31,7 @@ function Vol3dViewer(props) {
     surfaceMesh,
     surfaceColor,
     onCameraChange,
+    onWebGLRender,
   } = props;
 
   // For mounting the Three.js renderer image in the appropriate place in the DOM.
@@ -269,7 +270,11 @@ function Vol3dViewer(props) {
     if (surfaceVisible) {
       surfaceRef.current.visible = true;
     }
-  }, []);
+
+    if (onWebGLRender) {
+      onWebGLRender();
+    }
+  }, [onWebGLRender]);
 
   React.useEffect(() => {
     console.log('update OrbitUnlimitedControls');
@@ -428,6 +433,7 @@ Vol3dViewer.propTypes = {
   }),
   surfaceColor: PropTypes.string,
   onCameraChange: PropTypes.func,
+  onWebGLRender: PropTypes.func,
 };
 
 Vol3dViewer.defaultProps = {
@@ -444,6 +450,7 @@ Vol3dViewer.defaultProps = {
   surfaceMesh: null,
   surfaceColor: '#00ff00',
   onCameraChange: null,
+  onWebGLRender: null
 };
 
 export default Vol3dViewer;
