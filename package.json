@@ -10,7 +10,6 @@
   },
   "main": "dist/module.js",
   "module": "dist/module.js",
-  "license" : "SEE LICENSE IN LICENSE.md"
   "dependencies": {
     "@craco/craco": "^6.4.0",
     "@janelia/three-orbit-unlimited-controls": "^1.0.3",
