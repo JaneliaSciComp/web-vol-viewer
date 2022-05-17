@@ -32,6 +32,7 @@ function H5j3dViewerWithBasicUI() {
   const [useLighting, setUseLighting] = React.useState(true);
   const [dataColor, setDataColor] = React.useState('#ff00ff');
   const [dtScale, setDtScale] = React.useState(Vol3dViewer.defaultProps.dtScale);
+  const [interactionSpeedup, setInteractionSpeedup] = React.useState(1);
   const [peak, setPeak] = React.useState(peakDefault);
   const [dataGamma, setDataGamma] = React.useState(dataGammaDefault);
   const [finalGamma, setFinalGamma] = React.useState(Vol3dViewer.defaultProps.finalGamma);
@@ -206,6 +207,13 @@ function H5j3dViewerWithBasicUI() {
     }
   }
 
+  const onInteractionSpeedupChange = (event) => {
+    if (allowThrottledEvent.current) {
+       allowThrottledEvent.current = false;
+       setInteractionSpeedup(event.target.valueAsNumber);
+     }
+   }
+ 
   const onDataColorInputChange = (event) => {
     setDataColor(event.target.value);
     transferFunctionTexRef.current = 
@@ -308,6 +316,7 @@ function H5j3dViewerWithBasicUI() {
         volumeSize={volumeSize}
         voxelSize={voxelSize}
         dtScale={dtScale}
+        interactionSpeedup={interactionSpeedup}
         transferFunctionTex={transferFunctionTexRef.current}
         finalGamma={finalGamma}
         useLighting={useLighting}
@@ -352,6 +361,19 @@ function H5j3dViewerWithBasicUI() {
           step="0.1"
           onChange={onDtScaleChange}
         />
+
+        &nbsp;
+        Interaction speedup&nbsp;
+        <input 
+          className="Control"
+          type="number"
+          value={interactionSpeedup}
+          min="1"
+          max="20"
+          step="1"
+          onChange={onInteractionSpeedupChange}
+        />
+
         &nbsp;
         Final &gamma;&nbsp;
         <input 
