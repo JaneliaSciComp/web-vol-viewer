@@ -54,6 +54,8 @@ function Vol3dViewer(props) {
   const onCameraChangeRef = React.useRef(null);
   const prevHeightRef = React.useRef(null);
 
+  const cameraNear = 0.01;
+  const cameraFar = 10.0;
   // Different props affect different parts of the Three.js state, and a change to only
   // one prop should not causes all the Three.js state to be reinitialized.  It is not clear
   // that the Three.js state could be split between multiple React components, each having
@@ -65,9 +67,7 @@ function Vol3dViewer(props) {
   // those props change.
 
   React.useEffect(() => {
-    const cameraNear = 0.01;
-    const cameraFar = 10.0;
-  
+
     const initRenderer = () => {
       console.log('initRenderer');
 
@@ -95,27 +95,6 @@ function Vol3dViewer(props) {
 
       mountRef.current.appendChild(renderer.domElement);
       return renderer;
-    }
-
-    const initCamera = (renderer) => {
-      console.log('initCamera');
-    
-      const size = new THREE.Vector2();
-      renderer.getSize(size);
-      const camera = new THREE.PerspectiveCamera(
-        cameraFovDegrees,
-        size.x / size.y,
-        cameraNear,
-        cameraFar
-      );
-      camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
-      camera.up.set(cameraUp[0], cameraUp[1], cameraUp[2]);
-
-      const trackball = new OrbitUnlimitedControls(camera, renderer.domElement);
-      trackball.target.set(cameraTarget[0], cameraTarget[1], cameraTarget[2]);
-      trackball.zoomSpeed = orbitZoomSpeed;
-  
-      return [camera, trackball];
     }
 
     const initScene = () => {
@@ -147,7 +126,6 @@ function Vol3dViewer(props) {
       const directionalLightColor0 = new THREE.Color(0.9, 0.9, 0.9);
       const directionalLightColor1 = new THREE.Color(0.4, 0.5, 0.6);
       const directionalLightColor2 = new THREE.Color(0.7, 0.8, 1.0);
-  
       const directionalLight0 = new THREE.DirectionalLight(directionalLightColor0.getHex(), 1);
       directionalLight0.position.copy(directionalLightPos0);
       const directionalLight1 = new THREE.DirectionalLight(directionalLightColor1.getHex(), 1);
@@ -228,17 +206,14 @@ function Vol3dViewer(props) {
     }
 
     const renderer = initRenderer();
-    const [camera, trackball] = initCamera(renderer);
     const [scene, box, boxSize, light0, light1, light2] = initScene();
     const [boxMaterial, surfaceTarget] = initTextures(renderer, box, boxSize, light0, light1, light2);
 
     rendererRef.current = renderer;
-    cameraRef.current = camera;
     sceneRef.current = scene;
     boxRef.current = box;
     boxMaterialRef.current = boxMaterial;
     surfaceTargetRef.current = surfaceTarget;
-    trackballRef.current = trackball;
 
     // This "clean up" function will be called when the component is unmounted.  The copy of 
     // `mountRef.current` eliminates the following warning from React: "The ref value 'mountRef.current'
@@ -247,8 +222,34 @@ function Vol3dViewer(props) {
     // variable in the cleanup function."
     const mnt = mountRef.current;
     return (() => mnt.removeChild(renderer.domElement));
-  }, [cameraFovDegrees, cameraPosition, cameraTarget, cameraUp, orbitZoomSpeed, 
-    volumeDataUint8, volumeSize, voxelSize]);
+  }, [volumeDataUint8, volumeSize, voxelSize]);
+
+
+  React.useEffect(() => {
+    if (rendererRef.current) {
+      console.log('initCamera');
+      const renderer = rendererRef.current;
+      const size = new THREE.Vector2();
+      renderer.getSize(size);
+      const camera = new THREE.PerspectiveCamera(
+        cameraFovDegrees,
+        size.x / size.y,
+        cameraNear,
+        cameraFar
+      );
+      camera.position.set(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+      camera.up.set(cameraUp[0], cameraUp[1], cameraUp[2]);
+
+      const trackball = new OrbitUnlimitedControls(camera, renderer.domElement);
+      trackball.target.set(cameraTarget[0], cameraTarget[1], cameraTarget[2]);
+      trackball.zoomSpeed = orbitZoomSpeed;
+
+      cameraRef.current = camera;
+      trackballRef.current = trackball;
+    }
+  }, [rendererRef, cameraPosition, cameraUp, cameraTarget, cameraFovDegrees, orbitZoomSpeed]);
+
+
 
   // This rendering function is "memoized" so it can be used in `useEffect` blocks.
   // Note that it uses only the "instance fields" created with `React.useRef`, and no has no props
