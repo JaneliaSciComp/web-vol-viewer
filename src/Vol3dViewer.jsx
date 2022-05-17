@@ -21,6 +21,7 @@ function Vol3dViewer(props) {
     dtScale,
     transferFunctionTex,
     finalGamma,
+    interactionSpeedup,
     cameraPosition,
     cameraTarget,
     cameraUp,
@@ -385,6 +386,27 @@ function Vol3dViewer(props) {
     renderScene();
   }
 
+  React.useEffect(() => {
+    if (interactionSpeedup > 1) {
+      const setRes = (d) => {
+        rendererRef.current.setPixelRatio(window.devicePixelRatio / d);
+        const width = mountRef.current.clientWidth;
+        const height = mountRef.current.clientHeight;
+        rendererRef.current.setSize(width, height);
+        renderScene();
+      }
+      const mousedown = () => setRes(interactionSpeedup);
+      const mouseup = () => setRes(1);
+      rendererRef.current.domElement.addEventListener("mousedown", mousedown);
+      rendererRef.current.domElement.addEventListener("mouseup", mouseup);
+      return (() => {
+        rendererRef.current.domElement.removeEventListener("mousedown", mousedown);
+        rendererRef.current.domElement.removeEventListener("mouseup", mouseup);  
+      });
+    }
+    return (() => {});
+  }, [interactionSpeedup, renderScene]);
+
   // Check for WebGL 2 support, and store the result, to avoid creating too may contexts
   // when checking with each rendering.
   const gl2Ref = React.useRef(true);
@@ -420,6 +442,7 @@ Vol3dViewer.propTypes = {
     // A Three.js `DataTexture` (https://threejs.org/docs/#api/en/textures/DataTexture)
   transferFunctionTex: PropTypes.shape({ type: PropTypes.number }).isRequired,
   finalGamma: PropTypes.number,
+  interactionSpeedup: PropTypes.number,
   cameraPosition: PropTypes.arrayOf(PropTypes.number),
   cameraTarget: PropTypes.arrayOf(PropTypes.number),
   cameraUp: PropTypes.arrayOf(PropTypes.number),
@@ -439,6 +462,7 @@ Vol3dViewer.propTypes = {
 Vol3dViewer.defaultProps = {
   dtScale : 1.0,
   finalGamma : 2.5,
+  interactionSpeedup: 1,
   cameraPosition: [0, 0, -2],
   cameraTarget: [0, 0, 0],
   // Gives the correct orientation for Janelia FlyLight datasets.
