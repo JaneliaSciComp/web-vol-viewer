@@ -18,6 +18,7 @@ function Vol3dViewer(props) {
     volumeDataUint8,
     volumeSize,
     voxelSize,
+    useVolumeMirrorX,
     dtScale,
     transferFunctionTex,
     finalGamma,
@@ -196,6 +197,7 @@ function Vol3dViewer(props) {
           finalGamma: new THREE.Uniform(0),
           useLighting: new THREE.Uniform(true),
           useSurface: new THREE.Uniform(false),
+          useVolumeMirrorX: new THREE.Uniform(false)
         }
       });
   
@@ -224,7 +226,6 @@ function Vol3dViewer(props) {
     return (() => mnt.removeChild(renderer.domElement));
   }, [volumeDataUint8, volumeSize, voxelSize]);
 
-
   React.useEffect(() => {
     if (rendererRef.current) {
       console.log('initCamera');
@@ -248,8 +249,6 @@ function Vol3dViewer(props) {
       trackballRef.current = trackball;
     }
   }, [rendererRef, cameraPosition, cameraUp, cameraTarget, cameraFovDegrees, orbitZoomSpeed]);
-
-
 
   // This rendering function is "memoized" so it can be used in `useEffect` blocks.
   // Note that it uses only the "instance fields" created with `React.useRef`, and no has no props
@@ -312,12 +311,13 @@ function Vol3dViewer(props) {
     boxMaterialRef.current.uniforms.finalGamma.value = finalGamma;
     boxMaterialRef.current.uniforms.useLighting.value = useLighting;
     boxMaterialRef.current.uniforms.useSurface.value = useSurface;
+    boxMaterialRef.current.uniforms.useVolumeMirrorX.value = useVolumeMirrorX;
 
     // This `useEffect` follows the first React rendering, so it is necessary to
     // explicitly force a Three.js rendering to make the volme visible before any
     // interactive camera motion.
     renderScene();
-  }, [dtScale, finalGamma, renderScene, transferFunctionTex, useLighting, useSurface]);
+  }, [dtScale, finalGamma, renderScene, transferFunctionTex, useLighting, useSurface, useVolumeMirrorX]);
 
   React.useEffect(() => {
     const initSurface = () => {
@@ -439,6 +439,7 @@ Vol3dViewer.propTypes = {
   }).isRequired,
   volumeSize: PropTypes.arrayOf(PropTypes.number).isRequired,
   voxelSize: PropTypes.arrayOf(PropTypes.number).isRequired,
+  useVolumeMirrorX: PropTypes.bool,
   dtScale: PropTypes.number,
     // A Three.js `DataTexture` (https://threejs.org/docs/#api/en/textures/DataTexture)
   transferFunctionTex: PropTypes.shape({ type: PropTypes.number }).isRequired,
@@ -461,8 +462,9 @@ Vol3dViewer.propTypes = {
 };
 
 Vol3dViewer.defaultProps = {
-  dtScale : 1.0,
-  finalGamma : 2.5,
+  useVolumeMirrorX: false,
+  dtScale: 1.0,
+  finalGamma: 2.5,
   interactionSpeedup: 1,
   cameraPosition: [0, 0, -2],
   cameraTarget: [0, 0, 0],
@@ -470,8 +472,8 @@ Vol3dViewer.defaultProps = {
   cameraUp: [0, -1, 0],
   cameraFovDegrees: 45.0,
   orbitZoomSpeed: 0.15,
-  useLighting : true,
-  useSurface : false,
+  useLighting: true,
+  useSurface: false,
   surfaceMesh: null,
   surfaceColor: '#00ff00',
   onCameraChange: null,

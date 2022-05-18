@@ -22,6 +22,7 @@ function H5j3dViewerWithBasicUI() {
   const [filename, setFilename] = React.useState(null);
   const [volumeSize, setVolumeSize] = React.useState(null);
   const [voxelSize, setVoxelSize] = React.useState(null);
+  const [useVolumeMirrorX, setUseVolumeMirrorX] = React.useState(false);
   const [units, setUnits] = React.useState('');
   const [channelSpecs, setChannelSpecs] = React.useState(null);
   const [channel, setChannel] = React.useState(null);
@@ -227,6 +228,8 @@ function H5j3dViewerWithBasicUI() {
   const onKeyPress = (event) => {
     if (event.key === 'l') {
       setUseLighting(!useLighting);
+    } else if (event.key === 'm') {
+      setUseVolumeMirrorX(!useVolumeMirrorX);
     } else if (swcSurfaceMesh) {
       setUseSurface(!useSurface);
     }
@@ -315,6 +318,7 @@ function H5j3dViewerWithBasicUI() {
         volumeDataUint8={dataUint8}
         volumeSize={volumeSize}
         voxelSize={voxelSize}
+        useVolumeMirrorX={useVolumeMirrorX}
         dtScale={dtScale}
         interactionSpeedup={interactionSpeedup}
         transferFunctionTex={transferFunctionTexRef.current}

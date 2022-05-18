@@ -33,7 +33,8 @@ The application will then be available in a web browser as `https://localhost:30
 * a control at the bottom for choosing the "final $\gamma$", which helps to bring out faint features in the data; see [section on transfer functions](#transfer-functions)
 * mouse and key bindings for camera orbiting, zooming and panning, from the [three-orbit-unlimited-controls](https://github.com/JaneliaSciComp/three-orbit-unlimited-controls) module
 * a `spacebar` key binding to toggle the surface off and on
-* a `l` key binding to toggle lighting off and on
+* an `l` key binding to toggle lighting off and on
+* an `m` key binding to toggle mirroring of the volume data along the _x_ dimension
 
 The user interface is implemented with only standard HTML and CSS to avoid package dependencies.
 
@@ -99,6 +100,7 @@ function App() {
       voxelSize={voxelSize}
       transferFunctionTex={transferFunctionTex}
 
+      useVolumeMirrorX={useVolumeMirrorX}
       dtScale={dtScale}
       interactionSpeedup={interactionSpeedup}
       finalGamma={finalGamma}
@@ -119,6 +121,7 @@ function App() {
 ```
 
 These optional props are:
+* `useVolumeMirrorX` (default: false): controls whether to mirror the volume data along the _x_ axis
 * `dtScale` (default: 1): a higher value increases performance at the cost of quality, by increasing the step size when ray casting (and thus decreasing the number of samples)
 * `interactionSpeedup` (default: 1): a higher value increases interactivity at the cost of quality, by reducing the rendering resolution during interactive camera manipulation; this setting should be needed only with weak graphics cards and large data sets
 * `finalGamma` (default: 2.5): a higher value brings out more of that faint details in the rendering; see the [section on transfer functions](#transfer-functions)
