@@ -45,6 +45,8 @@ uniform vec3 lightColor1;
 uniform vec3 lightColor2;
 uniform highp vec3 boxSize;
 
+uniform bool useVolumeMirrorX;
+
 // Optional parameters, for when a solid surface is being drawn along with
 // the volume data.
 uniform bool useSurface;
@@ -79,10 +81,14 @@ float cameraDistanceFromDepth(float depth) {
 void main(void) {
   vec3 rayDir = normalize(rayDirUnnorm);
 
+  rayDir.x = useVolumeMirrorX ? -rayDir.x : rayDir.x;
+  vec3 cameraPositionAdjusted = cameraPosition;
+  cameraPositionAdjusted.x = useVolumeMirrorX ? -cameraPositionAdjusted.x : cameraPositionAdjusted.x;
+
   // Find the part of the ray that intersects the box, where this part is
   // expressed as a range of "t" values (with "t" being the traditional
   // parameter for a how far a point is along a ray).
-  vec2 tBox = intersectBox(cameraPosition, rayDir);
+  vec2 tBox = intersectBox(cameraPositionAdjusted, rayDir);
 
   ivec2 surfaceTexSize = ivec2(0);
   vec2 surfaceTexCoord = vec2(0);
@@ -116,7 +122,7 @@ void main(void) {
   }
 
   // Ray starting point, in the "real" space where the box may not be a cube.
-	vec3 p = cameraPosition + tBox.x * rayDir;
+  vec3 p = cameraPositionAdjusted + tBox.x * rayDir;
 
   // Dither to reduce banding (aliasing).
   // https://www.marcusbannerman.co.uk/articles/VolumeRendering.html
