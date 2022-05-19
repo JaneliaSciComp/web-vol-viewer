@@ -1,7 +1,7 @@
 // Based on the blog post by Will Usher:
 // https://www.willusher.io/webgl/2019/01/13/volume-rendering-with-webgl
-// Adds lighting, depth-based compositing of a solid surface, little tweaks
-// like dithering to reduce aliasing.
+// The code here adds lighting, depth-based compositing of a solid surface, 
+// mirroring, and little tweaks like dithering to reduce aliasing.
 
 export const vertexShaderVolume =
 `
@@ -61,15 +61,15 @@ uniform sampler2D surfaceDepthTex;
 
 vec2 intersectBox(vec3 orig, vec3 dir) {
   vec3 boxMin = vec3(-0.5) * boxSize;
-	vec3 boxMax = vec3( 0.5) * boxSize;
-	vec3 invDir = 1.0 / dir;
-	vec3 tmin0 = (boxMin - orig) * invDir;
-	vec3 tmax0 = (boxMax - orig) * invDir;
-	vec3 tmin = min(tmin0, tmax0);
-	vec3 tmax = max(tmin0, tmax0);
-	float t0 = max(tmin.x, max(tmin.y, tmin.z));
-	float t1 = min(tmax.x, min(tmax.y, tmax.z));
-	return vec2(t0, t1);
+  vec3 boxMax = vec3( 0.5) * boxSize;
+  vec3 invDir = 1.0 / dir;
+  vec3 tmin0 = (boxMin - orig) * invDir;
+  vec3 tmax0 = (boxMax - orig) * invDir;
+  vec3 tmin = min(tmin0, tmax0);
+  vec3 tmax = max(tmin0, tmax0);
+  float t0 = max(tmin.x, max(tmin.y, tmin.z));
+  float t1 = min(tmax.x, min(tmax.y, tmax.z));
+  return vec2(t0, t1);
 }
 
 float cameraDistanceFromDepth(float depth) {
@@ -103,15 +103,15 @@ void main(void) {
     tBox.y = min(tBox.y, dist);
   }
 
-	if (tBox.x >= tBox.y) {
-		discard;
-	}
+  if (tBox.x >= tBox.y) {
+    discard;
+  }
 
   tBox.x = max(tBox.x, 0.0);
 
   ivec3 volumeTexSize = textureSize(volumeTex, 0);
   vec3 dt0 = 1.0 / (vec3(volumeTexSize) * abs(rayDir));
-	float dt = min(dt0.x, min(dt0.y, dt0.z));
+  float dt = min(dt0.x, min(dt0.y, dt0.z));
 
   dt *= dtScale;
 
@@ -145,7 +145,10 @@ void main(void) {
   // A step of one voxel, for computing the gradient by a central difference.
   vec3 dg = vec3(1) / vec3(volumeTexSize);
 
-	for (float t = tBox.x; t < tBox.y; t += dt) {
+  // Most browsers do not need this initialization, but add it to be safe.
+  gl_FragColor = vec4(0.0);
+
+  for (float t = tBox.x; t < tBox.y; t += dt) {
     float v = texture(volumeTex, pSized).r;
     vec4 vColor = texture(transferTex, vec2(v, 0.5));
       
@@ -188,16 +191,16 @@ void main(void) {
       */
     }
 
-		gl_FragColor.rgb += (1.0 - gl_FragColor.a) * vColor.a * vColor.rgb;
-		gl_FragColor.a += (1.0 - gl_FragColor.a) * vColor.a;
+    gl_FragColor.rgb += (1.0 - gl_FragColor.a) * vColor.a * vColor.rgb;
+    gl_FragColor.a += (1.0 - gl_FragColor.a) * vColor.a;
 
-		if (gl_FragColor.a >= 0.95) {
-			break;
-		}
+    if (gl_FragColor.a >= 0.95) {
+      break;
+    }
 
     // Move to the next point along the ray.
     pSized += dPSized;
-	}
+  }
 
   float g = 1.0 / finalGamma;
   gl_FragColor = pow(gl_FragColor, vec4(g, g, g, 1));
@@ -208,7 +211,13 @@ void main(void) {
     vec3 surfaceColor = texture(surfaceColorTex, surfaceTexCoord).rgb;
     float surfaceAlpha = 1.0;
     gl_FragColor.rgb += (1.0 - gl_FragColor.a) * surfaceAlpha * surfaceColor.rgb;
-		gl_FragColor.a += (1.0 - gl_FragColor.a) * surfaceAlpha;
+    // The following line is no longer needed with the final assignment, below.
+    // gl_FragColor.a += (1.0 - gl_FragColor.a) * surfaceAlpha;
   }
+
+  // A few browsers show some artifacts if the final alpha value is not 1.0,
+  // probably a version of the issues discussed here:
+  // https://webglfundamentals.org/webgl/lessons/webgl-and-alpha.html
+  gl_FragColor.a = 1.0;
 }
 `
