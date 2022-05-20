@@ -141,7 +141,7 @@ function Vol3dViewer(props) {
       return ([scene, box, boxSize, directionalLight0, directionalLight1, directionalLight2]);  
     }
 
-    const initTextures = (renderer, box, boxSize, directionalLight0, directionalLight1, directionalLight2) => {
+    const initMaterial = (renderer, box, boxSize, directionalLight0, directionalLight1, directionalLight2) => {
       const volumeTexture = new THREE.DataTexture3D(volumeDataUint8, volumeSize[0], volumeSize[1], volumeSize[2]);
       volumeTexture.format = THREE.RedFormat
       volumeTexture.type = THREE.UnsignedByteType
@@ -158,19 +158,6 @@ function Vol3dViewer(props) {
       const lightColorV0 = new THREE.Vector3(lightColor0.r, lightColor0.g, lightColor0.b);
       const lightColorV1 = new THREE.Vector3(lightColor1.r, lightColor1.g, lightColor1.b);
       const lightColorV2 = new THREE.Vector3(lightColor2.r, lightColor2.g, lightColor1.b);
-  
-      const drawingBufferSize = new THREE.Vector2();
-      renderer.getDrawingBufferSize(drawingBufferSize);
-      const surfaceTarget = new THREE.WebGLRenderTarget(drawingBufferSize.x, drawingBufferSize.y);
-      surfaceTarget.texture.format = THREE.RGBFormat;
-      surfaceTarget.texture.minFilter = THREE.NearestFilter;
-      surfaceTarget.texture.magFilter = THREE.NearestFilter;
-      surfaceTarget.texture.generateMipmaps = false;
-      surfaceTarget.depthBuffer = true;
-      surfaceTarget.depthTexture = new THREE.DepthTexture();
-      surfaceTarget.depthTexture.format = THREE.DepthFormat;
-      surfaceTarget.depthTexture.type = THREE.UnsignedShortType;
-      surfaceTarget.stencilBuffer = false;
 
       const boxMaterial = new THREE.ShaderMaterial({
         vertexShader: vertexShaderVolume,
@@ -185,8 +172,6 @@ function Vol3dViewer(props) {
           lightColor0: new THREE.Uniform(lightColorV0),
           lightColor1: new THREE.Uniform(lightColorV1),
           lightColor2: new THREE.Uniform(lightColorV2),
-          surfaceColorTex: new THREE.Uniform(surfaceTarget.texture),
-          surfaceDepthTex: new THREE.Uniform(surfaceTarget.depthTexture),
           near: new THREE.Uniform(cameraNear),
           far: new THREE.Uniform(cameraFar),
 
@@ -197,6 +182,8 @@ function Vol3dViewer(props) {
           finalGamma: new THREE.Uniform(0),
           useLighting: new THREE.Uniform(true),
           useSurface: new THREE.Uniform(false),
+          surfaceColorTex: new THREE.Uniform(null),
+          surfaceDepthTex: new THREE.Uniform(null),
           useVolumeMirrorX: new THREE.Uniform(false)
         }
       });
@@ -204,18 +191,17 @@ function Vol3dViewer(props) {
       /* eslint no-param-reassign: ["error", { "props": false }] */
       box.material = boxMaterial;
 
-      return [boxMaterial, surfaceTarget]
+      return [boxMaterial]
     }
 
     const renderer = initRenderer();
     const [scene, box, boxSize, light0, light1, light2] = initScene();
-    const [boxMaterial, surfaceTarget] = initTextures(renderer, box, boxSize, light0, light1, light2);
+    const [boxMaterial] = initMaterial(renderer, box, boxSize, light0, light1, light2);
 
     rendererRef.current = renderer;
     sceneRef.current = scene;
     boxRef.current = box;
     boxMaterialRef.current = boxMaterial;
-    surfaceTargetRef.current = surfaceTarget;
 
     // This "clean up" function will be called when the component is unmounted.  The copy of 
     // `mountRef.current` eliminates the following warning from React: "The ref value 'mountRef.current'
@@ -251,12 +237,28 @@ function Vol3dViewer(props) {
   }, [rendererRef, cameraPosition, cameraUp, cameraTarget, cameraFovDegrees, orbitZoomSpeed]);
 
   // This rendering function is "memoized" so it can be used in `useEffect` blocks.
-  // Note that it uses only the "instance fields" created with `React.useRef`, and no has no props
-  // or state as dependencies (i.e., the final argument is an empty `[]`).
   const renderScene = React.useCallback(() => {
     const surfaceVisible = surfaceRef.current && surfaceRef.current.visible;
     if (surfaceVisible) {
       boxRef.current.visible = false;
+
+      const size = new THREE.Vector2();
+      rendererRef.current.getDrawingBufferSize(size);
+      if (!surfaceTargetRef.current || surfaceTargetRef.current.width !== size.x || surfaceTargetRef.current.height !== size.y) {        
+        surfaceTargetRef.current  = new THREE.WebGLRenderTarget(size.x, size.y);
+        surfaceTargetRef.current.texture.format = THREE.RGBFormat;
+        surfaceTargetRef.current.texture.minFilter = THREE.NearestFilter;
+        surfaceTargetRef.current.texture.magFilter = THREE.NearestFilter;
+        surfaceTargetRef.current.texture.generateMipmaps = false;
+        surfaceTargetRef.current.depthBuffer = true;
+        surfaceTargetRef.current.depthTexture = new THREE.DepthTexture(size.x, size.y);
+        surfaceTargetRef.current.depthTexture.format = THREE.DepthFormat;
+        surfaceTargetRef.current.depthTexture.type = THREE.UnsignedShortType;
+        surfaceTargetRef.current.stencilBuffer = false;
+
+        boxMaterialRef.current.uniforms.surfaceColorTex.value = surfaceTargetRef.current.texture;
+        boxMaterialRef.current.uniforms.surfaceDepthTex.value = surfaceTargetRef.current.depthTexture;
+      }
 
       rendererRef.current.setRenderTarget(surfaceTargetRef.current);
       rendererRef.current.render(sceneRef.current, cameraRef.current);
