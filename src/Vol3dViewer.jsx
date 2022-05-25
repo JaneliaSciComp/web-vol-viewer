@@ -19,6 +19,7 @@ function Vol3dViewer(props) {
     volumeSize,
     voxelSize,
     useVolumeMirrorX,
+    alphaScale,
     dtScale,
     transferFunctionTex,
     finalGamma,
@@ -178,6 +179,7 @@ function Vol3dViewer(props) {
           // The following are set separately, since they are based on `props` values that can
           // change often, and should not trigger complete re-initialization.
           transferTex: new THREE.Uniform(null),
+          alphaScale: new THREE.Uniform(0),
           dtScale: new THREE.Uniform(0),
           finalGamma: new THREE.Uniform(0),
           useLighting: new THREE.Uniform(true),
@@ -309,6 +311,7 @@ function Vol3dViewer(props) {
     console.log('update box material');
   
     boxMaterialRef.current.uniforms.transferTex.value = transferFunctionTex;
+    boxMaterialRef.current.uniforms.alphaScale.value = alphaScale;
     boxMaterialRef.current.uniforms.dtScale.value = dtScale;
     boxMaterialRef.current.uniforms.finalGamma.value = finalGamma;
     boxMaterialRef.current.uniforms.useLighting.value = useLighting;
@@ -319,7 +322,7 @@ function Vol3dViewer(props) {
     // explicitly force a Three.js rendering to make the volme visible before any
     // interactive camera motion.
     renderScene();
-  }, [dtScale, finalGamma, renderScene, transferFunctionTex, useLighting, useSurface, useVolumeMirrorX]);
+  }, [alphaScale, dtScale, finalGamma, renderScene, transferFunctionTex, useLighting, useSurface, useVolumeMirrorX]);
 
   React.useEffect(() => {
     const initSurface = () => {
@@ -442,6 +445,7 @@ Vol3dViewer.propTypes = {
   volumeSize: PropTypes.arrayOf(PropTypes.number).isRequired,
   voxelSize: PropTypes.arrayOf(PropTypes.number).isRequired,
   useVolumeMirrorX: PropTypes.bool,
+  alphaScale: PropTypes.number,
   dtScale: PropTypes.number,
     // A Three.js `DataTexture` (https://threejs.org/docs/#api/en/textures/DataTexture)
   transferFunctionTex: PropTypes.shape({ type: PropTypes.number }).isRequired,
@@ -465,6 +469,7 @@ Vol3dViewer.propTypes = {
 
 Vol3dViewer.defaultProps = {
   useVolumeMirrorX: false,
+  alphaScale: 1.0,
   dtScale: 1.0,
   finalGamma: 2.5,
   interactionSpeedup: 1,
