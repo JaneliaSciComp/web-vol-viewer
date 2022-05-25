@@ -26,8 +26,9 @@ The application will then be available in a web browser as `https://localhost:30
 * a button at the top for choosing the color of the rendered volume
 * a button at the top for choosing the surface file, in [SWC format](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html), from either a URL or a local file as with the volume
 * a button at the top for choosing the color of the rendered surface
-* a control at the bottom for choosing the "data peak", the 8-bit value below which opacity falls off as controlled by the "data $\gamma$" (gamma); see [section on transfer functions](#transfer-functions)
-* a control at the bottom for choosing the "data $\gamma$", which controls the rate of opacity falloff from the "data peak"; see [section on transfer functions](#transfer-functions)
+* a control at the bottom for choosing the "data peak", the 8-bit value below which opacity ($\alpha$) falls off as controlled by the "data $\gamma$" (gamma); see [section on transfer functions](#transfer-functions)
+* a control at the bottom for choosing the "data $\gamma$", which controls the rate of opacity ($\alpha$) falloff from the "data peak"; see [section on transfer functions](#transfer-functions)
+* a control at the bottom for choosing the "data $\alpha$ scale", which adjusts the opacity ($\alpha$) at each sample in the ray casting
 * a control at the bottom for choosing the spacing of samples in the ray casting, with a value larger than the default of 1 improving performance at the cost of quality
 * a control at the bottom for choosing the speedup (resolution reduction) during camera interaction, with a value larger than the default of 1 improving performance at the cost of quality
 * a control at the bottom for choosing the "final $\gamma$", which helps to bring out faint features in the data; see [section on transfer functions](#transfer-functions)
@@ -101,6 +102,7 @@ function App() {
       transferFunctionTex={transferFunctionTex}
 
       useVolumeMirrorX={useVolumeMirrorX}
+      alphaScale={alphaScale}
       dtScale={dtScale}
       interactionSpeedup={interactionSpeedup}
       finalGamma={finalGamma}
@@ -122,6 +124,7 @@ function App() {
 
 These optional props are:
 * `useVolumeMirrorX` (default: false): controls whether to mirror the volume data along the _x_ axis
+* `alphaScale` (default: 1): a lower value decreases the opacity ($\alpha$) at each sample when ray casting
 * `dtScale` (default: 1): a higher value increases performance at the cost of quality, by increasing the step size when ray casting (and thus decreasing the number of samples)
 * `interactionSpeedup` (default: 1): a higher value increases interactivity at the cost of quality, by reducing the rendering resolution during interactive camera manipulation; this setting should be needed only with weak graphics cards and large data sets
 * `finalGamma` (default: 2.5): a higher value brings out more of that faint details in the rendering; see the [section on transfer functions](#transfer-functions)

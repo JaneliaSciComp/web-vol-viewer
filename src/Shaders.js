@@ -33,6 +33,7 @@ in vec3 rayDirUnnorm;
 
 uniform sampler2D transferTex;
 uniform highp sampler3D volumeTex;
+uniform float alphaScale;
 uniform float dtScale;
 uniform float finalGamma;
 
@@ -141,6 +142,7 @@ void main(void) {
   float l = length(rayDir * boxSize);
   float lMin = min(boxSize.x, min(boxSize.y, boxSize.z));
   float alphaNormalization = lMin / l;
+  alphaNormalization *= alphaScale;
 
   // A step of one voxel, for computing the gradient by a central difference.
   vec3 dg = vec3(1) / vec3(volumeTexSize);

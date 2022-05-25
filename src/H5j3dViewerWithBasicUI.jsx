@@ -32,6 +32,7 @@ function H5j3dViewerWithBasicUI() {
   const [dataUint8, setDataUint8] = React.useState(null);
   const [useLighting, setUseLighting] = React.useState(true);
   const [dataColor, setDataColor] = React.useState('#ff00ff');
+  const [alphaScale, setAlphaScale] = React.useState(Vol3dViewer.defaultProps.alphaScale);
   const [dtScale, setDtScale] = React.useState(Vol3dViewer.defaultProps.dtScale);
   const [interactionSpeedup, setInteractionSpeedup] = React.useState(1);
   const [peak, setPeak] = React.useState(peakDefault);
@@ -131,6 +132,7 @@ function H5j3dViewerWithBasicUI() {
           setDataUint8(dUint8);
 
           setDtScale(Vol3dViewer.defaultProps.dtScale);
+          setAlphaScale(Vol3dViewer.defaultProps.alphaScale);
           setPeak(peakDefault);
           setDataGamma(dataGammaDefault);
           setFinalGamma(Vol3dViewer.defaultProps.finalGamma);
@@ -173,6 +175,13 @@ function H5j3dViewerWithBasicUI() {
       } catch (exc) {
         setLoadingError(exc);
       }
+    }
+  }
+
+  const onAlphaScaleChange = (event) => {
+    if (allowThrottledEvent.current) {
+      allowThrottledEvent.current = false;
+      setAlphaScale(event.target.valueAsNumber);
     }
   }
 
@@ -319,6 +328,7 @@ function H5j3dViewerWithBasicUI() {
         volumeSize={volumeSize}
         voxelSize={voxelSize}
         useVolumeMirrorX={useVolumeMirrorX}
+        alphaScale={alphaScale}
         dtScale={dtScale}
         interactionSpeedup={interactionSpeedup}
         transferFunctionTex={transferFunctionTexRef.current}
@@ -354,6 +364,16 @@ function H5j3dViewerWithBasicUI() {
           step="0.01"
           onChange={onDataGammaChange}
         />
+        Data &alpha; scale&nbsp;
+        <input 
+          className="Control"
+          type="number"
+          value={alphaScale}
+          min="0.01"
+          max="1"
+          step="0.01"
+          onChange={onAlphaScaleChange}
+        />
         &nbsp;
         Sample spacing&nbsp;
         <input 
@@ -365,7 +385,6 @@ function H5j3dViewerWithBasicUI() {
           step="0.1"
           onChange={onDtScaleChange}
         />
-
         &nbsp;
         Interaction speedup&nbsp;
         <input 
@@ -377,7 +396,6 @@ function H5j3dViewerWithBasicUI() {
           step="1"
           onChange={onInteractionSpeedupChange}
         />
-
         &nbsp;
         Final &gamma;&nbsp;
         <input 
