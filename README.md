@@ -127,7 +127,7 @@ These optional props are:
 * `alphaScale` (default: 1): a lower value decreases the opacity ($\alpha$) at each sample when ray casting
 * `dtScale` (default: 1): a higher value increases performance at the cost of quality, by increasing the step size when ray casting (and thus decreasing the number of samples)
 * `interactionSpeedup` (default: 1): a higher value increases interactivity at the cost of quality, by reducing the rendering resolution during interactive camera manipulation; this setting should be needed only with weak graphics cards and large data sets
-* `finalGamma` (default: 2.5): a higher value brings out more of that faint details in the rendering; see the [section on transfer functions](#transfer-functions)
+* `finalGamma` (default: 4.5): a higher value brings out more of that faint details in the rendering; see the [section on transfer functions](#transfer-functions)
 * `cameraPosition` (default: `[0, 0, -2]`): the initial position of the camera, relative to the box representing the volume (which is centered at the origin, scaled so its longest dimension goes from -0.5 to 0.5)
 * `cameraTarget` (default: `[0, 0, 0]`): the initial point at which the camera is looking
 * `cameraUp` (default: `[0, -1, 0]`): the initial "up" direction for the camera
@@ -156,17 +156,17 @@ The basic color for all data values is `colorStr` (e.g., `'#ff00ff` for the most
 
 After the transfer function is applied to colors that are accumulated during ray casting, a `finalGamma` is applied to the accumulated color: `c ** (1.0 / finalGamma)` (see the `pow()` call at the end of `fragmentShaderVolume` in `src/Shaders.js`, and note again that the color must be normalized to have components between 0 and 1).  It may seem counterintuitive to reduce the visibility of low data values with the `dataGamma` only to increase their visibility with the `finalGamma`, but this approach works well for fluorescence microscopy, where significant features emit more light and have higher data values.  The `dataGamma` prevents low data values from overwhelming small, significant features during the ray casting, while the `finalGamma` prevents the loss of areas with _only_ low data values, which can be important for visual context.
 
-This effect is visible in the following two images, of sample [VT049371](https://s3.amazonaws.com/janelia-flylight-imagery/Gen1+MCFO/VT049371/VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack.h5j) and body [5901203987](https://s3.amazonaws.com/janelia-flylight-color-depth/SWC/FlyEM_Hemibrain_v1.2.1/5901203987.swc) from the [FlyLight Generation 1 MCFO collection](https://gen1mcfo.janelia.org/cgi-bin/gen1mcfo.cgi) (citation: https://dx.doi.org/10.1016/j.celrep.2012.09.011).  With the default `finalGamma` of 2.5, not much of the low-value context is visible:
+This effect is visible in the following two images, of sample [VT049371](https://s3.amazonaws.com/janelia-flylight-imagery/Gen1+MCFO/VT049371/VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack.h5j) and body [5901203987](https://s3.amazonaws.com/janelia-flylight-color-depth/SWC/FlyEM_Hemibrain_v1.2.1/5901203987.swc) from the [FlyLight Generation 1 MCFO collection](https://gen1mcfo.janelia.org/cgi-bin/gen1mcfo.cgi) (citation: https://dx.doi.org/10.1016/j.celrep.2012.09.011).  With the default `finalGamma` of 4.5, not much of the low-value context is visible:
 <div>
 <p align="center">
-<img src="VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack-Channel_1-gamma25.png">
+<img src="VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack-Channel_1-gamma_default.png">
 </p>
 <div>
 
-Increasing the `finalGamma` to 3.5 reveals more context without overwhelming the significant features visible in the previous image:
+Increasing the `finalGamma` to 6 reveals more context without overwhelming the significant features visible in the previous image:
 <div>
 <p align="center">
-<img src="VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack-Channel_1-gamma35.png">
+<img src="VT049371-20171013_61_B1-f-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack-Channel_1-gamma_raised.png">
 </p>
 <div>
 

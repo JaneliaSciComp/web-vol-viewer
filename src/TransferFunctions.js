@@ -22,10 +22,12 @@ export function makeFluoTransferTex(alpha0, peak, dataGamma, alpha1, colorStr)
     alpha += yGamma * (255 - alpha);
     alpha = Math.round(alpha);
     alpha = Math.max(0, Math.min(alpha, 255));
-    data[4 * i] = color.r ;
-    data[4 * i + 1] = color.g;
-    data[4 * i + 2] = color.b;
-    data[4 * i + 3] = alpha;
+
+   const preMultAlpha = alpha / 255.0;
+   data[4 * i]     = color.r * preMultAlpha;
+   data[4 * i + 1] = color.g * preMultAlpha;
+   data[4 * i + 2] = color.b * preMultAlpha;
+   data[4 * i + 3] = alpha;
   }
 
   const transferTexture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat); 

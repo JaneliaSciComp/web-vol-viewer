@@ -471,7 +471,7 @@ Vol3dViewer.defaultProps = {
   useVolumeMirrorX: false,
   alphaScale: 1.0,
   dtScale: 1.0,
-  finalGamma: 2.5,
+  finalGamma: 4.5,
   interactionSpeedup: 1,
   cameraPosition: [0, 0, -2],
   cameraTarget: [0, 0, 0],
