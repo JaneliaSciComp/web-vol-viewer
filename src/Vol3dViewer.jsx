@@ -233,6 +233,13 @@ function Vol3dViewer(props) {
       trackball.target.set(cameraTarget[0], cameraTarget[1], cameraTarget[2]);
       trackball.zoomSpeed = orbitZoomSpeed;
 
+      // Match the modifier keys used by VVD_Viewer, as described in the FluoRender user manual:
+      // http://www.sci.utah.edu/releases/fluorender_v2.20/FluoRender2.20_Manual.pdf
+      // Appendix "C. Keyboard Shortcuts"
+      trackball.usePanModAlt = true;
+      trackball.usePanModCtrl = true;
+      trackball.usePanModMeta = true;
+
       cameraRef.current = camera;
       trackballRef.current = trackball;
     }
