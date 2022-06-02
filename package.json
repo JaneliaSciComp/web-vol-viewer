@@ -12,7 +12,7 @@
   "module": "dist/module.js",
   "dependencies": {
     "@craco/craco": "^6.4.0",
-    "@janelia/three-orbit-unlimited-controls": "^1.0.3",
+    "@janelia/three-orbit-unlimited-controls": ">=1.1.0",
     "@janelia/web-h5j-loader": "^1.0.0"
   },
   "peerDependencies": {
