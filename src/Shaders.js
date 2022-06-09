@@ -133,6 +133,8 @@ void main(void) {
 
   // Ray starting point, and change in ray point with each step, for the space where
   // the box has been warped to a cube, for accessing the cubical data texture.
+  // The vec3(0.5) is necessary because rays are defined in the space where the box is
+  // centered at the origin, but texture look-ups have the origin at a box corner.
   vec3 pSized = p / boxSize + vec3(0.5);
   vec3 dPSized = (rayDir * dt) / boxSize;
 
@@ -193,6 +195,11 @@ void main(void) {
       */
     }
 
+    // Adding this point's color is the compositing operation "A over B", where 
+    // A is gl_FragColor (the samples in front of this one on the ray) and 
+    // B is vColor (this sample), using premultiplied alpha for the B color 
+    // (i.e., vColor.a * vColor.rgb).
+    // https://en.wikipedia.org/wiki/Alpha_compositing#Straight_versus_premultiplied
     gl_FragColor.rgb += (1.0 - gl_FragColor.a) * vColor.a * vColor.rgb;
     gl_FragColor.a += (1.0 - gl_FragColor.a) * vColor.a;
 
