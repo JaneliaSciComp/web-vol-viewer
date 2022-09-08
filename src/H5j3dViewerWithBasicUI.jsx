@@ -8,6 +8,7 @@ import './H5j3dViewerWithBasicUI.css';
 import { createFFmpegForEnv, getH5JAttrs, openH5J, readH5JChannelUint8 } from '@janelia/web-h5j-loader';
 import { makeFluoTransferTex } from './TransferFunctions';
 import Vol3dViewer from './Vol3dViewer';
+import { makeObjSurface, isObjSource } from './Obj';
 import { makeSwcSurface, parseSwc } from './Swc';
 import { fixVolumeSize, parseH5jAttrs, surfaceAlignmentFactors, textFromFileOrURL } from './Utils';
 import FileOrURLInput from './FileOrURLInput';
@@ -155,8 +156,13 @@ function H5j3dViewerWithBasicUI() {
       setLoadingError(null);
       try {
         const text = await textFromFileOrURL(src);
-        const json = parseSwc(text);
-        const mesh = makeSwcSurface(json, surfaceColor);
+        let mesh = null;
+        if (isObjSource(src)) {
+           mesh = makeObjSurface(text, surfaceColor);
+        } else {
+          const json = parseSwc(text);
+          mesh = makeSwcSurface(json, surfaceColor);
+        }
 
         const { surfaceScale, surfaceTranslation } = surfaceAlignmentFactors(units, volumeSize, voxelSize);
 
@@ -438,7 +444,7 @@ function H5j3dViewerWithBasicUI() {
           />
           &nbsp;
           <FileOrURLInput
-            accept=".swc"
+            accept=".swc,.obj"
             onChange={onSurfaceFileInputChange}
             disabled={!dataUint8}
           />

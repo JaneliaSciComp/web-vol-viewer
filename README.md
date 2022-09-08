@@ -11,7 +11,7 @@ An example of the EM-LM matching application is the following image, using data 
 <img src="R89H10-20190416_63_A4-m-40x-central-GAL4-JRC2018_Unisex_20x_HR-aligned_stack-Channel_1.png">
 </p>
 
-The implementation uses ray casting in a [GLSL](https://www.khronos.org/opengl/wiki/OpenGL_Shading_Language) fragment shader.  The basic idea was described as early as 2009 in a blog by [Kyle Hayward](http://graphicsrunner.blogspot.com/2009/01/volume-rendering-101.html).  In 2014, [Leandro Barbagallo](http://www.lebarba.com) demonstrated a WebGL 1 version.  The implementation here is more closely related to a simpler approach from a blog post by [Will Usher](https://www.willusher.io/webgl/2019/01/13/volume-rendering-with-webgl) in 2019.  This code extends that approach in various ways, adding support for non-cubical volumes, lighting using gradients in the volume as the surface normal, and the opaque surface with depth occlusion.
+The implementation uses ray casting in a [GLSL](https://www.khronos.org/opengl/wiki/OpenGL_Shading_Language) fragment shader.  The basic idea was described as early as 2009 in a blog post by [Kyle Hayward](http://graphicsrunner.blogspot.com/2009/01/volume-rendering-101.html).  In 2014, [Leandro Barbagallo](http://www.lebarba.com) demonstrated a WebGL 1 version.  The implementation here is more closely related to a simpler approach from a blog post by [Will Usher](https://www.willusher.io/webgl/2019/01/13/volume-rendering-with-webgl) in 2019.  This code extends that approach in various ways, adding support for non-cubical volumes, lighting using gradients in the volume as the surface normal, and the opaque surface with depth occlusion.
 
 ## Usage
 
@@ -24,7 +24,7 @@ npm start
 The application will then be available in a web browser as `https://localhost:3000`.  It has the simple user interface shown in the images above:
 * a button at the top for choosing the volume file, in [H5J format](https://github.com/JaneliaSciComp/workstation/blob/master/docs/H5JFileFormat.md); pressing this button reveals a panel for either entering a URL or choosing a local file on the host
 * a button at the top for choosing the color of the rendered volume
-* a button at the top for choosing the surface file, in [SWC format](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html), from either a URL or a local file as with the volume
+* a button at the top for choosing the surface file, in [SWC format](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html) or [OBJ format](https://en.wikipedia.org/wiki/Wavefront_.obj_file), from either a URL or a local file as with the volume
 * a button at the top for choosing the color of the rendered surface
 * a control at the bottom for choosing the "data peak", the 8-bit value below which opacity ($\alpha$) falls off as controlled by the "data $\gamma$" (gamma); see [section on transfer functions](#transfer-functions)
 * a control at the bottom for choosing the "data $\gamma$", which controls the rate of opacity ($\alpha$) falloff from the "data peak"; see [section on transfer functions](#transfer-functions)
