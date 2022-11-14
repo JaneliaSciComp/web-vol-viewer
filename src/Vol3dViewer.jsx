@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import OrbitUnlimitedControls from '@janelia/three-orbit-unlimited-controls';
 
 import { vertexShaderVolume, fragmentShaderVolume } from './Shaders';
+import { getBoxSize } from './Utils';
 
 function Vol3dViewer(props) {
   const {
@@ -27,6 +28,7 @@ function Vol3dViewer(props) {
     cameraPosition,
     cameraTarget,
     cameraUp,
+    // Vertical field of view
     cameraFovDegrees,
     orbitZoomSpeed,
     useLighting,
@@ -108,10 +110,7 @@ function Vol3dViewer(props) {
       // centered at the origin, with X in [-0.5, 0.5] so the width is 1, and
       // Y (height) and Z (depth) scaled to match.
 
-      const s = volumeSize[0] * voxelSize[0];
-      const boxWidth = 1;
-      const boxHeight = volumeSize[1] * voxelSize[1] / s;
-      const boxDepth = volumeSize[2] * voxelSize[2] / s;
+      const [ boxWidth, boxHeight, boxDepth ] = getBoxSize(volumeDataUint8, voxelSize);
       const boxSize = new THREE.Vector3(boxWidth, boxHeight, boxDepth);
       console.log(`Voxel size ${voxelSize[0]}, ${voxelSize[1]}, ${voxelSize[2]}`);
       console.log(`Box size ${boxWidth}, ${boxHeight}, ${boxDepth}`);
