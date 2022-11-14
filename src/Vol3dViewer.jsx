@@ -110,7 +110,7 @@ function Vol3dViewer(props) {
       // centered at the origin, with X in [-0.5, 0.5] so the width is 1, and
       // Y (height) and Z (depth) scaled to match.
 
-      const [ boxWidth, boxHeight, boxDepth ] = getBoxSize(volumeDataUint8, voxelSize);
+      const [ boxWidth, boxHeight, boxDepth ] = getBoxSize(volumeSize, voxelSize);
       const boxSize = new THREE.Vector3(boxWidth, boxHeight, boxDepth);
       console.log(`Voxel size ${voxelSize[0]}, ${voxelSize[1]}, ${voxelSize[2]}`);
       console.log(`Box size ${boxWidth}, ${boxHeight}, ${boxDepth}`);
