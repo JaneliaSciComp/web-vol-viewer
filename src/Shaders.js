@@ -102,6 +102,12 @@ void main(void) {
     float depth = texture(surfaceDepthTex, surfaceTexCoord).x;
     float dist = cameraDistanceFromDepth(depth);
     tBox.y = min(tBox.y, dist);
+
+    // It also may be the case that the surface extends outside the volume.
+    // If it is between the camera and the volume, the starting "t" value
+    // must be pushed back to accomodate it (with a little extra tolerance
+    // included) or it will appear as black.
+    tBox.x = min(tBox.x, dist - 0.0001);
   }
 
   if (tBox.x >= tBox.y) {
