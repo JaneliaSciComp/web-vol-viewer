@@ -41,7 +41,11 @@ The user interface is implemented with only standard HTML and CSS to avoid packa
 
 ### Reusable Component with User Interface
 
-The `H5j3dViewerWithBasicUI` component makes the renderer and simple user interface available for use in other applications.  If the other application is a React functional component, the code would be like the following:
+The `H5j3dViewerWithBasicUI` component makes the renderer and simple user interface available for use in other applications.  First, install the [NPM module](https://www.npmjs.com/package/@janelia/web-vol-viewer):
+```
+npm install @janelia/web-vol-viewer
+```
+Then, if the other application is a React functional component, the code would be like the following:
 ```javascript
 import { H5j3dViewerWithBasicUI } from '@janelia/web-vol-viewer';
 
@@ -60,8 +64,11 @@ If opening an H5J file with this component produces an error in the console, "Sh
 
 ### Basic Reusable Component
 
-Use the `Vol3dViewer` component to wrap the renderer in a different user interface, created with a toolkit like [Ant Design](https://ant.design) or [Material-UI](https://v4.mui.com/).  This component provides the renderer with no user interface beyond the mouse and key bindings (for camera control, etc.).  Here is an example of using it with its required props:
-
+Use the `Vol3dViewer` component to wrap the renderer in a different user interface, created with a toolkit like [Ant Design](https://ant.design) or [Material-UI](https://v4.mui.com/).  This component provides the renderer with no user interface beyond the mouse and key bindings (for camera control, etc).  First, install the [NPM module](https://www.npmjs.com/package/@janelia/web-vol-viewer):
+```
+npm install @janelia/web-vol-viewer
+```
+Then, use it as in this example, with its required props:
 ```jsx
 import { Vol3dViewer } from '@janelia/web-vol-viewer';
 
