@@ -26,13 +26,11 @@ export function fixVolumeSize(volumeSize, data) {
   return (volumeSizeFixed);
 }
 
-export function getBoxSize(volumeSize, voxelSize)
+export function getBoxSize(volSize, voxelSize)
 {
-  const s = volumeSize[0] * voxelSize[0];
-  const boxWidth = 1;
-  const boxHeight = volumeSize[1] * voxelSize[1] / s;
-  const boxDepth = volumeSize[2] * voxelSize[2] / s;
-  const boxSize = [boxWidth, boxHeight, boxDepth];
+  const physicalSize = volSize.map((e, i) => e * voxelSize[i]);
+  const sizeMax = Math.max(...physicalSize);
+  const boxSize = physicalSize.map((e) => e / sizeMax);
   return boxSize;
 }
 

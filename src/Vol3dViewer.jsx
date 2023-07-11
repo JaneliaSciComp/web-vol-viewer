@@ -479,7 +479,7 @@ Vol3dViewer.defaultProps = {
   dtScale: 1.0,
   finalGamma: 4.5,
   interactionSpeedup: 1,
-  cameraPosition: [0, 0, -2],
+  cameraPosition: [0, 0, -1],
   cameraTarget: [0, 0, 0],
   // Gives the correct orientation for Janelia FlyLight datasets.
   cameraUp: [0, -1, 0],
