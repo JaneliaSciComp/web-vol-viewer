@@ -11,7 +11,6 @@
   "main": "dist/module.js",
   "module": "dist/module.js",
   "dependencies": {
-    "@craco/craco": "^6.4.0",
     "@janelia/three-orbit-unlimited-controls": ">=1.1.0",
     "@janelia/web-h5j-loader": "^1.0.0"
   },
@@ -60,8 +59,10 @@
     "@babel/cli": "^7.17.6",
     "@babel/core": "^7.17.9",
     "@babel/preset-env": "^7.16.11",
+    "@craco/craco": "^7.1.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.6.2"
