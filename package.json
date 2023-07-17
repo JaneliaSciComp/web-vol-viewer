@@ -1,6 +1,6 @@
 {
   "name": "@janelia/web-vol-viewer",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "Volume rendering with WebGL 2.",
   "author": "Philip M. Hubbard",
   "license": "Janelia Open Source License",
