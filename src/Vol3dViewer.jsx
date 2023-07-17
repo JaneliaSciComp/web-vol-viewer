@@ -37,6 +37,7 @@ function Vol3dViewer(props) {
     surfaceColor,
     onCameraChange,
     onWebGLRender,
+    heightCorrection,
   } = props;
 
   // For mounting the Three.js renderer image in the appropriate place in the DOM.
@@ -376,11 +377,12 @@ function Vol3dViewer(props) {
       timeout = setTimeout(() => {
         const width = mountRef.current.clientWidth;
         let height = mountRef.current.clientHeight;
-        
-        // The `clientHeight` does not seem to change when resizing to a shorter height.
-        // So keep track of the `innerHeight`, which does change, and use it for a correction.
-        if (window.innerHeight < prevHeightRef.current) {
-          height -= prevHeightRef.current - window.innerHeight;
+        if (heightCorrection) {
+          // The `clientHeight` does not seem to change when resizing to a shorter height.
+          // So keep track of the `innerHeight`, which does change, and use it for a correction.
+          if (window.innerHeight < prevHeightRef.current) {
+            height -= prevHeightRef.current - window.innerHeight;
+          }
         }
         prevHeightRef.current = window.innerHeight;
 
@@ -471,6 +473,7 @@ Vol3dViewer.propTypes = {
   surfaceColor: PropTypes.string,
   onCameraChange: PropTypes.func,
   onWebGLRender: PropTypes.func,
+  heightCorrection: PropTypes.bool,
 };
 
 Vol3dViewer.defaultProps = {
@@ -490,7 +493,8 @@ Vol3dViewer.defaultProps = {
   surfaceMesh: null,
   surfaceColor: '#00ff00',
   onCameraChange: null,
-  onWebGLRender: null
+  onWebGLRender: null,
+  heightCorrection: true,
 };
 
 export default Vol3dViewer;
