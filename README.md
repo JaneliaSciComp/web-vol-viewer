@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/7535676.svg)](https://zenodo.org/badge/latestdoi/7535676)
+
 # web-vol-viewer
 
 ## Summary
