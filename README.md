@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/7535676.svg)](https://zenodo.org/badge/latestdoi/7535676)
+[![DOI](https://zenodo.org/badge/482934188.svg)](https://zenodo.org/badge/latestdoi/6772512)
 
 # web-vol-viewer
 
