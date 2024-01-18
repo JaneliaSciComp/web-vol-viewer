@@ -1,6 +1,6 @@
-[![DOI](https://zenodo.org/badge/482934188.svg)](https://zenodo.org/doi/10.5281/zenodo.6772512)
-
 # web-vol-viewer
+
+[![DOI](https://zenodo.org/badge/482934188.svg)](https://zenodo.org/doi/10.5281/zenodo.6772512)
 
 ## Summary
 
