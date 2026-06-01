@@ -1,6 +1,6 @@
 {
   "name": "@janelia/web-vol-viewer",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Volume rendering with WebGL 2.",
   "author": "Philip M. Hubbard",
   "license": "Janelia Open Source License",
@@ -15,16 +15,23 @@
     "@janelia/web-h5j-loader": "^1.0.0"
   },
   "peerDependencies": {
+    "onnxruntime-web": "^1.24.3",
     "prop-types": ">=15.8.1",
     "react": ">=16.13.1",
     "react-dom": ">=16.12.0",
     "react-modal": ">=3.15.1",
     "three": "^0.125.2"
   },
+  "peerDependenciesMeta": {
+    "onnxruntime-web": {
+      "optional": true
+    }
+  },
   "scripts": {
     "start": "craco start",
     "test": "craco test",
-    "dist": "babel src --out-dir dist --ignore src/App.jsx,src/index.jsx && cp src/H5j3dViewerWithBasicUI.css src/Vol3dViewer.css dist",
+    "test:ci": "craco test --watchAll=false",
+    "dist": "babel src --out-dir dist --ignore src/App.jsx,src/index.jsx && cp src/H5j3dViewerWithBasicUI.css src/Vol3dViewer.css src/peakModelConfig.json dist && node scripts/embed-model.js",
     "prepublishOnly": "npm run dist"
   },
   "eslintConfig": {
@@ -65,6 +72,7 @@
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
+    "onnxruntime-web": "^1.24.3",
     "prettier": "^2.6.2"
   }
 }
