@@ -1,0 +1,25 @@
+{
+  "peaks": [5, 32, 87, 141, 196, 250],
+  "peak_min": 5,
+  "peak_max": 250,
+  "num_channels": 8,
+  "training_image_size": 1024,
+  "image_size": 192,
+  "dilation_n": 20,
+  "green_dilation_n": 3,
+  "green_mask_thresholds": {
+    "green_thresh": 20,
+    "red_max": 50,
+    "blue_max": 50
+  },
+  "bbox_pad_fraction": 0.1,
+  "channel_order": [
+    "green_mask",
+    "crop_mask",
+    "magenta_peak_5", "magenta_peak_32",
+    "magenta_peak_87", "magenta_peak_141",
+    "magenta_peak_196",
+    "magenta_peak_250"
+  ],
+  "onnx_file": "peak_model.onnx"
+}

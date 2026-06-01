@@ -124,7 +124,11 @@ function App() {
       useSurface={userSurface}
       surfaceMesh={surfaceMesh}
       surfaceColor={surfaceColor}
-      onCameraChange={onCameraChange}
+      onCameraChange={onCameraChange},
+      onWebGLRender={onWebGLRender},
+      onRenderedImage={onRenderedImage},
+      heightCorrection={heightCorrection},
+      useCameraControls={useCamneraControls}
     />
     ...
   );
@@ -148,6 +152,9 @@ These optional props are:
 * `surfaceColor` (default: `'#00ff00'`): the color of the mesh; note that there is no alpha because the mesh must be fully opaque
 * `onCameraChange` (default: `null`): a function of the form `(event) => {}` called each time the camera changes position.  The `event.target` is the [`OrbitUnlimitedControls`](https://github.com/JaneliaSciComp/three-orbit-unlimited-controls) instance that controls the camera, and `event.target.object` is the Three.js [`PerspectiveCamera`](https://threejs.org/docs/#api/en/cameras/PerspectiveCamera).
 * `onWebGLRender` (default: `null`): a function of the form `() => {}` called each time Three.js renders the 3D scene.  The `H5j3dViewerWithBasicUI` component uses this callback to implement throttling of the spinners on the UI controls.
+* `onRenderedImage` (default: `null`): a function of the form `(pixels, width, height) -> {}` called at the same time as `onWebGLRender`, but with an array of the actual rendered pixels, and the array's width and height. This callback is separate from `onWegGLRender` because reading back the rendered pixels takes processing time, and is omitted when this callback is not defined.
+* `heightCorrection` (default: `true`): applies a correction when resizing the DOM item for the rendered image to have a height _smaller_ than its current height. The correction probably is correct in all cases but this flag is there in case it is not.
+* `useCameraControls` (default: `true`): when false, interactive changes to the camera are disabled.
 
 If opening an H5J file with this component produces an error in the console, "SharedArrayBuffer is not defined", then the application may not have [cross-origin isolation](https://web.dev/cross-origin-isolation-guide) set up properly; see the [section on H5J volume data](#h5j-volume-data).
 
@@ -180,6 +187,37 @@ Increasing the `finalGamma` to 6 reveals more context without overwhelming the s
 <div>
 
 The renderer can work with other transfer functions but the module does not implement any at this time.
+
+## Using AI to Pick Transfer Functions for Volume/Surface Matches
+
+Choosing the `peak` parameter of the transfer function by hand can be tedious, especially when browsing many volume/surface pairs.  The `usePeakPredictor` React hook automates this choice using a small [ONNX](https://onnx.ai/) neural network (MobileNetV3-Small) that runs entirely in the browser via WebAssembly.
+
+When the hook is invoked it temporarily takes control of the renderer, cycling through several transfer functions (high peak to low peak) and capturing the resulting pixel buffers with `gl.readPixels`.  It also captures a surface-only frame so the model can locate the green surface within the image.  From these captures it builds a multi-channel tensor (two binary masks for a dilation of the green surface and crop region, plus the red channel of each combined render) crops and resizes it to 192 &times; 192, and feeds it to the ONNX model.  The model returns a predicted peak value that is then applied to the transfer function for normal viewing.
+
+A verification mechanism ensures that each captured frame actually corresponds to the transfer function that was set for it.  The fragment shader writes a one-byte watermark into the blue channel of the image center pixel, and the predictor reads that byte back and compares it against the expected value before accepting the frame.
+
+The hook is imported from the `dist/` directory:
+```javascript
+import usePeakPredictor from "@janelia/web-vol-viewer/dist/FluoTransferPeakPredictor";
+```
+
+Note that the [ONNX Runtime Web module](https://www.npmjs.com/package/onnxruntime-web) is declared as an optional peer dependency.  The consuming application must add it to its own `package.json`:
+```json
+{
+  "dependencies": {
+    "onnxruntime-web": "^1.24.3"
+  }
+}
+```
+This approach keeps the roughly 7 MB runtime out of the bundle for applications that do not use the predictor.  If applications that do use the predictor omit this step, the build will fail with a message from Webpack:
+```
+Module not found: Error: Can't resolve 'onnxruntime-web' in '.../@janelia/web-vol-viewer/dist'
+```
+Note also that to workaround bundling issues, the WebAssembly (WASM) code needed by ONXX Runtime Web is fetched from
+```
+https://cdn.jsdelivr.net/npm/onnxruntime-web@${ortVersion}/dist/
+```
+where `ortVersion` is the version of the ONNX Runtime Web module, for compatibility. The code that does that fetching throws an exception if the CDN site does not respond within 10 seconds, so the higher-level code can choose know to switch to an alternative approach.
 
 ## H5J Volume Data
 
@@ -215,6 +253,13 @@ For a site created with [`create-react-app`](https://create-react-app.dev/), a w
     },
     ...
     ```
+
+## Testing
+
+From the repo root:
+```
+npm run test:ci
+```
 
 ## Tips
 

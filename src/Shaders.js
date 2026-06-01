@@ -56,6 +56,22 @@ uniform float far;
 uniform sampler2D surfaceColorTex;
 uniform sampler2D surfaceDepthTex;
 
+// Optional render-pairing check used by the peak-finder calibration
+// pipeline. When useWatermark is true, the center pixel of the image is
+// overwritten with watermark (0..255) in the B channel and the volume
+// raymarch is skipped for that one pixel. The peak finder reads that
+// byte back and verifies the frame was rendered with the expected
+// transfer function. Pixel (0, 0) would not work here because the box
+// geometry rarely covers the image corner, so the fragment shader never
+// runs there; the image center is reliably inside the box silhouette.
+// resolution is the drawing-buffer size in pixels, supplied by
+// Vol3dViewer so the shader can locate the center pixel.
+// When useWatermark is false, no pixel is affected and no readback check
+// is performed.
+uniform bool useWatermark;
+uniform float watermark;
+uniform vec2 resolution;
+
 // Three.js adds built-in uniforms and attributes:
 // https://threejs.org/docs/#api/en/renderers/webgl/WebGLProgram
 // uniform vec3 cameraPosition;
@@ -80,6 +96,22 @@ float cameraDistanceFromDepth(float depth) {
 }
 
 void main(void) {
+  // Render-pairing check: at the image center only, write the watermark
+  // number as the B channel and skip the raymarch. floor(resolution *
+  // 0.5) gives the integer pixel coordinates of the center; the
+  // gl_FragCoord comparison matches only the one fragment whose pixel
+  // center is inside that unit cell. Keeping this at the very top of
+  // main() means it runs regardless of whether the ray would hit the
+  // volume box.
+  if (useWatermark) {
+    vec2 center = floor(resolution * 0.5);
+    if (gl_FragCoord.x >= center.x && gl_FragCoord.x < center.x + 1.0 &&
+        gl_FragCoord.y >= center.y && gl_FragCoord.y < center.y + 1.0) {
+      gl_FragColor = vec4(0.0, 0.0, watermark / 255.0, 1.0);
+      return;
+    }
+  }
+
   vec3 rayDir = normalize(rayDirUnnorm);
 
   rayDir.x = useVolumeMirrorX ? -rayDir.x : rayDir.x;

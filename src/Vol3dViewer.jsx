@@ -37,7 +37,9 @@ function Vol3dViewer(props) {
     surfaceColor,
     onCameraChange,
     onWebGLRender,
+    onRenderedImage,
     heightCorrection,
+    useCameraControls,
   } = props;
 
   // For mounting the Three.js renderer image in the appropriate place in the DOM.
@@ -58,6 +60,9 @@ function Vol3dViewer(props) {
   const surfaceTargetRef = React.useRef(null);
   const onCameraChangeRef = React.useRef(null);
   const prevHeightRef = React.useRef(null);
+
+  const onRenderedImageRef = React.useRef(onRenderedImage);
+  onRenderedImageRef.current = onRenderedImage;
 
   const cameraNear = 0.01;
   const cameraFar = 10.0;
@@ -186,7 +191,13 @@ function Vol3dViewer(props) {
           useSurface: new THREE.Uniform(false),
           surfaceColorTex: new THREE.Uniform(null),
           surfaceDepthTex: new THREE.Uniform(null),
-          useVolumeMirrorX: new THREE.Uniform(false)
+          useVolumeMirrorX: new THREE.Uniform(false),
+          // Optional render-pairing check: when the transfer texture's userData.watermark is defined,
+          // the shader writes that watermark as the blue channel of the image center so callers can
+          // verify readback pairing. `resolution` tells the shader where the center is. See `FluoTransferPeakPredictor.js`.
+          useWatermark: new THREE.Uniform(false),
+          watermark: new THREE.Uniform(0),
+          resolution: new THREE.Uniform(new THREE.Vector2())
         }
       });
   
@@ -211,7 +222,20 @@ function Vol3dViewer(props) {
     // node rendered by React, copy 'mountRef.current' to a variable inside the effect, and use that
     // variable in the cleanup function."
     const mnt = mountRef.current;
-    return (() => mnt.removeChild(renderer.domElement));
+    return (() => {
+      const volumeTex = boxMaterial.uniforms.volumeTex.value;
+      if (volumeTex) {
+        volumeTex.dispose();
+      }
+      box.geometry.dispose();
+      boxMaterial.dispose();
+      if (surfaceTargetRef.current) {
+        surfaceTargetRef.current.dispose();
+        surfaceTargetRef.current = null;
+      }
+      mnt.removeChild(renderer.domElement);
+      renderer.dispose();
+    });
   }, [volumeDataUint8, volumeSize, voxelSize]);
 
   React.useEffect(() => {
@@ -283,10 +307,34 @@ function Vol3dViewer(props) {
       surfaceRef.current.visible = true;
     }
 
+    // Pixel readback when requested
+    if (onRenderedImageRef.current) {
+      console.time('readPixels');
+      const gl = rendererRef.current.getContext();
+      const w = gl.drawingBufferWidth;
+      const h = gl.drawingBufferHeight;
+      const pixels = new Uint8Array(w * h * 4);
+      gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+      console.timeEnd('readPixels');
+      onRenderedImageRef.current({ pixels, width: w, height: h });
+    }
+
     if (onWebGLRender) {
       onWebGLRender();
     }
   }, [onWebGLRender]);
+
+  // Toggle interactive camera controls.  When false, the user cannot rotate,
+  // pan, or zoom; useful while peak prediction is running so a stray drag does
+  // not change the viewing angle between captured frames.  Implemented as
+  // `pointer-events: none` on the renderer's canvas because the Janelia fork
+  // of `OrbitControls` does not honor an `enabled` flag.
+  React.useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.domElement.style.pointerEvents =
+        useCameraControls ? '' : 'none';
+    }
+  }, [useCameraControls]);
 
   React.useEffect(() => {
     console.log('update OrbitUnlimitedControls');
@@ -324,9 +372,18 @@ function Vol3dViewer(props) {
     boxMaterialRef.current.uniforms.useLighting.value = useLighting;
     boxMaterialRef.current.uniforms.useSurface.value = useSurface;
     boxMaterialRef.current.uniforms.useVolumeMirrorX.value = useVolumeMirrorX;
+    const watermark = transferFunctionTex && transferFunctionTex.userData
+      ? transferFunctionTex.userData.watermark
+      : undefined;
+    boxMaterialRef.current.uniforms.useWatermark.value = watermark !== undefined;
+    boxMaterialRef.current.uniforms.watermark.value = watermark !== undefined ? watermark : 0;
+    const size = new THREE.Vector2();
+    rendererRef.current.getDrawingBufferSize(size);
+    // Read by the shader only during the watermark check in `usePeaKPredictor`, which runs once at startup.
+    boxMaterialRef.current.uniforms.resolution.value.copy(size);
 
     // This `useEffect` follows the first React rendering, so it is necessary to
-    // explicitly force a Three.js rendering to make the volme visible before any
+    // explicitly force a Three.js rendering to make the volume visible before any
     // interactive camera motion.
     renderScene();
   }, [alphaScale, dtScale, finalGamma, renderScene, transferFunctionTex, useLighting, useSurface, useVolumeMirrorX]);
@@ -364,9 +421,14 @@ function Vol3dViewer(props) {
     }
   }, [renderScene, surfaceColor, surfaceMesh]);
 
-  if (surfaceRef.current) {
-    surfaceRef.current.visible = useSurface;
-  }
+  React.useEffect(() => {
+    if (surfaceRef.current) {
+      surfaceRef.current.visible = useSurface;
+    }
+    if (rendererRef.current) {
+      renderScene();
+    }
+  }, [useSurface, renderScene]);
 
   // When the window is resized, force an update to the camera aspect ratio as part of scene rendering.
   React.useEffect(() => {
@@ -394,11 +456,7 @@ function Vol3dViewer(props) {
     }
     window.addEventListener("resize", handleResize)
     return (() => window.removeEventListener("resize", handleResize));
-  }, [renderScene]);
-
-  if (rendererRef.current) {
-    renderScene();
-  }
+  }, [renderScene, heightCorrection]);
 
   React.useEffect(() => {
     if (interactionSpeedup > 1) {
@@ -456,7 +514,12 @@ Vol3dViewer.propTypes = {
   alphaScale: PropTypes.number,
   dtScale: PropTypes.number,
     // A Three.js `DataTexture` (https://threejs.org/docs/#api/en/textures/DataTexture)
-  transferFunctionTex: PropTypes.shape({ type: PropTypes.number }).isRequired,
+  transferFunctionTex: PropTypes.shape({
+    type: PropTypes.number,
+    userData: PropTypes.shape({
+      watermark: PropTypes.number,
+    }),
+  }).isRequired,
   finalGamma: PropTypes.number,
   interactionSpeedup: PropTypes.number,
   cameraPosition: PropTypes.arrayOf(PropTypes.number),
@@ -473,7 +536,9 @@ Vol3dViewer.propTypes = {
   surfaceColor: PropTypes.string,
   onCameraChange: PropTypes.func,
   onWebGLRender: PropTypes.func,
+  onRenderedImage: PropTypes.func,
   heightCorrection: PropTypes.bool,
+  useCameraControls: PropTypes.bool,
 };
 
 Vol3dViewer.defaultProps = {
@@ -494,7 +559,9 @@ Vol3dViewer.defaultProps = {
   surfaceColor: '#00ff00',
   onCameraChange: null,
   onWebGLRender: null,
+  onRenderedImage: null,
   heightCorrection: true,
+  useCameraControls: true,
 };
 
 export default Vol3dViewer;
