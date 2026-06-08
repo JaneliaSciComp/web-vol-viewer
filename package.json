@@ -1,6 +1,6 @@
 {
   "name": "@janelia/web-vol-viewer",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Volume rendering with WebGL 2.",
   "author": "Philip M. Hubbard",
   "license": "Janelia Open Source License",
@@ -73,6 +73,8 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "onnxruntime-web": "^1.24.3",
-    "prettier": "^2.6.2"
+    "prettier": "^2.6.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
